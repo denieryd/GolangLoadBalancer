@@ -28,7 +28,7 @@ We use
 ./lb --backends=http://localhost:3031,http://localhost:3032,http://localhost:3033,http://localhost:3034
 ```
 
-# Details 
+# External docker images
 `strm/helloworld-http` -  is a simple 'Hello world' in an HTTP server to be used to test load balancers. When receive an request (GET /) this image will return the current machine hostname.
 
 # Result
@@ -54,4 +54,5 @@ We use
 - tests - controllers, clients
 - testcoverge
 - measure of performance
-- Even cleaner code
+- Even cleaner code (if I got at least one code review)
+- Grafana & Prometheus metrics
