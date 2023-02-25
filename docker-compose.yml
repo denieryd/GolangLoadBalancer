@@ -1,8 +1,9 @@
 version: "3"
 services:
-  front:
+  loadbalancer_front:
     build: .
-    container_name: lb
+    restart: always
+    container_name: loadbalancer
     ports:
       - "3030:3030"
     command: --backends "http://web1:80,http://web2:80,http://web3:80"
