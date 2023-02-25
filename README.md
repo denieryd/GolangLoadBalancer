@@ -59,6 +59,7 @@ We use
 7. Dockerized application (multi-stage build)
 
 # What I didn't do, but can ?
+- more tests with more sense
 - measure of performance
 - Even cleaner code (if I got at least one code review)
 - Grafana & Prometheus metrics
