@@ -31,12 +31,18 @@ We use
 # External docker images
 `strm/helloworld-http` -  is a simple 'Hello world' in an HTTP server to be used to test load balancers. When receive an request (GET /) this image will return the current machine hostname.
 
-# Result
+# Working app screens
+- building app
 ![img.png](./images/img1.png)
 
+- balancing requests between backends
 ![img.png](./images/img2.png)
 
+- curl API
 ![img.png](./images/img3.png)
+
+- docker ps
+![img.png](./images/img4.png)
 
 # How to run
 1. docker-compose up
@@ -49,12 +55,10 @@ We use
    1. Retries if backend didn't answer
    2. Attempts if another backend picked for current request
 5. HealthCheck for backends to check if they're alive and modify their statuses 
-6. Showed using of goroutines (health check running in different Go thread), atomic package, mutexes. Didn't show using of channels, but I know them too.
-7. Dockerized application
+6. Showed using of goroutines (health check running in different Go thread), atomic package, mutexes, channels (used for timers, no too smart but anyway)
+7. Dockerized application (multi-stage build)
 
 # What I didn't do, but can ?
-- tests - controllers, clients
-- testcoverge
 - measure of performance
 - Even cleaner code (if I got at least one code review)
 - Grafana & Prometheus metrics
