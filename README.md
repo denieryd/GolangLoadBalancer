@@ -38,7 +38,7 @@ We use
 
 ![img.png](./images/img3.png)
 
-# How to run by end user 
+# How to run
 1. docker-compose up
 
 # What I've done
@@ -48,7 +48,9 @@ We use
 4. "Tolerant policy" for non-200 return code
    1. Retries if backend didn't answer
    2. Attempts if another backend picked for current request
-5. HealthCheck for backends to check if they're alive 
+5. HealthCheck for backends to check if they're alive and modify their statuses 
+6. Showed using of goroutines (health check running in different Go thread), atomic package, mutexes. Didn't show using of channels, but I know them too.
+7. Dockerized application
 
 # What I didn't do, but can ?
 - tests - controllers, clients
