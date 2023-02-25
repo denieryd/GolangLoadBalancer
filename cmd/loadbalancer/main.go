@@ -5,7 +5,7 @@ import (
     "fmt"
     lb "github.com/denieryd/SimpleLoadBalancer/internal/loadbalancer"
     "github.com/denieryd/SimpleLoadBalancer/internal/proxy"
-    "log"
+    log "github.com/sirupsen/logrus"
     "net/http"
     "strings"
 )
@@ -26,6 +26,7 @@ func main() {
     if err := proxy.SetupProxyServers(tokens); err != nil {
         log.Fatal(err)
     }
+    log.Info("Proxies are set up")
 
     server := http.Server{
         Addr:    fmt.Sprintf(":%d", port),
@@ -34,7 +35,7 @@ func main() {
 
     go lb.HealthCheck()
 
-    log.Printf("Load Balancer started at :%d\n", port)
+    log.Infof("Backends are: %v. Load balancer starts at :%v port", serverList, port)
     if err := server.ListenAndServe(); err != nil {
         log.Fatal(err)
     }

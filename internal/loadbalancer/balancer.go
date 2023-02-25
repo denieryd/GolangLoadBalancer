@@ -2,28 +2,27 @@ package loadbalancer
 
 import (
     "github.com/denieryd/SimpleLoadBalancer/internal/backend"
-    "log"
+    log "github.com/sirupsen/logrus"
     "net/http"
     "time"
 )
 
 const (
-    Attempts int = iota
-    Retry
+    ATTEMPTS int = iota
+    RETRY
 )
 
 var ServerPool backend.ServerPool
 
 func GetAttemptsFromContext(r *http.Request) int {
-    if attempts, ok := r.Context().Value(Attempts).(int); ok {
+    if attempts, ok := r.Context().Value(ATTEMPTS).(int); ok {
         return attempts
     }
-
     return 1
 }
 
 func GetRetryFromContext(r *http.Request) int {
-    if retry, ok := r.Context().Value(Retry).(int); ok {
+    if retry, ok := r.Context().Value(RETRY).(int); ok {
         return retry
     }
     return 0
@@ -32,7 +31,7 @@ func GetRetryFromContext(r *http.Request) int {
 func LoadBalance(w http.ResponseWriter, r *http.Request) {
     attempts := GetAttemptsFromContext(r)
     if attempts > 3 {
-        log.Printf("%s(%s) Max attempts reached, terminating\n", r.RemoteAddr, r.URL.Path)
+        log.Infof("%s(%s) Max attempts reached, terminating\n", r.RemoteAddr, r.URL.Path)
         http.Error(w, "Service not available", http.StatusServiceUnavailable)
         return
     }
@@ -44,20 +43,19 @@ func LoadBalance(w http.ResponseWriter, r *http.Request) {
     }
 
     http.Error(w, "Service not available", http.StatusServiceUnavailable)
-
 }
 
 func HealthCheck() {
     timeToStart := time.Second * 30
-    log.Printf("first health check in %v\n", timeToStart)
+    log.Infof("first backends health check will start in %v\n", timeToStart)
 
     t := time.NewTicker(timeToStart)
     for {
         select {
         case <-t.C:
-            log.Println("Start health checking")
+            log.Info("Start health checking")
             ServerPool.HealthCheck()
-            log.Println("Health check completed")
+            log.Info("Health check completed")
         }
     }
 }

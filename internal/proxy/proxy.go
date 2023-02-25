@@ -4,7 +4,7 @@ import (
     "context"
     "github.com/denieryd/SimpleLoadBalancer/internal/backend"
     lb "github.com/denieryd/SimpleLoadBalancer/internal/loadbalancer"
-    "log"
+    log "github.com/sirupsen/logrus"
     "net/http"
     "net/http/httputil"
     "net/url"
@@ -20,12 +20,12 @@ func SetupProxyServers(serverTokens []string) error {
 
         reverseProxy := httputil.NewSingleHostReverseProxy(serverURL)
         reverseProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, e error) {
-            log.Printf("[%s] %s\n", serverURL.Host, e.Error())
+            log.Infof("[%s] %s\n", serverURL.Host, e.Error())
             retries := lb.GetRetryFromContext(r)
             if retries < 3 {
                 select {
                 case <-time.After(10 * time.Millisecond):
-                    ctx := context.WithValue(r.Context(), lb.Retry, retries+1)
+                    ctx := context.WithValue(r.Context(), lb.RETRY, retries+1)
                     reverseProxy.ServeHTTP(w, r.WithContext(ctx))
                 }
                 return
@@ -34,8 +34,8 @@ func SetupProxyServers(serverTokens []string) error {
             lb.ServerPool.MarkBackendStatus(serverURL, false)
 
             attempts := lb.GetAttemptsFromContext(r)
-            log.Printf("%s(%s) Attempting retry %d\n", r.RemoteAddr, r.URL.Path, attempts)
-            ctx := context.WithValue(r.Context(), lb.Attempts, attempts+1)
+            log.Infof("%s(%s) Attempting retry %d\n", r.RemoteAddr, r.URL.Path, attempts)
+            ctx := context.WithValue(r.Context(), lb.ATTEMPTS, attempts+1)
             lb.LoadBalance(w, r.WithContext(ctx))
         }
 
@@ -45,7 +45,7 @@ func SetupProxyServers(serverTokens []string) error {
             ReverseProxy: reverseProxy,
         })
 
-        log.Printf("Configured server: %s\n", serverURL)
+        log.Infof("Configured server: %s\n", serverURL)
     }
 
     return nil
