@@ -5,28 +5,14 @@ import (
     "net"
     "net/http/httputil"
     "net/url"
-    "sync"
     "time"
 )
 
-type Backend struct {
-    URL          *url.URL
-    Alive        bool
-    mux          sync.RWMutex
-    ReverseProxy *httputil.ReverseProxy
-}
-
-func (b *Backend) SetAlive(alive bool) {
-    b.mux.Lock()
-    b.Alive = alive
-    b.mux.Unlock()
-}
-
-func (b *Backend) IsAlive() bool {
-    b.mux.RLock()
-    alive := b.Alive
-    b.mux.RUnlock()
-    return alive
+type IBackend interface {
+    SetAlive(bool)
+    IsAlive() bool
+    GetServerURL() *url.URL
+    GetReverseProxy() *httputil.ReverseProxy
 }
 
 func isBackendAlive(u *url.URL) bool {

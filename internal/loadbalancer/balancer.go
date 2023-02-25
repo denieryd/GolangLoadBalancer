@@ -31,14 +31,14 @@ func GetRetryFromContext(r *http.Request) int {
 func LoadBalance(w http.ResponseWriter, r *http.Request) {
     attempts := GetAttemptsFromContext(r)
     if attempts > 3 {
-        log.Infof("%s(%s) Max attempts reached, terminating\n", r.RemoteAddr, r.URL.Path)
+        log.Infof("%s(%s) Max attempts reached, terminating", r.RemoteAddr, r.URL.Path)
         http.Error(w, "Service not available", http.StatusServiceUnavailable)
         return
     }
 
     peer := ServerPool.GetNextPeer()
     if peer != nil {
-        peer.ReverseProxy.ServeHTTP(w, r)
+        (*peer).GetReverseProxy().ServeHTTP(w, r)
         return
     }
 
@@ -47,7 +47,7 @@ func LoadBalance(w http.ResponseWriter, r *http.Request) {
 
 func HealthCheck() {
     timeToStart := time.Second * 30
-    log.Infof("first backends health check will start in %v\n", timeToStart)
+    log.Infof("first backends health check will start in %v", timeToStart)
 
     t := time.NewTicker(timeToStart)
     for {

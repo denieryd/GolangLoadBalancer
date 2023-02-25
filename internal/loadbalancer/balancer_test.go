@@ -26,6 +26,12 @@ func TestGetRetryFromContext(t *testing.T) {
             t.Errorf("expected RETRY = %v, got %v", test.want, test.input)
         }
     }
+
+    r = r.WithContext(context.Background())
+
+    if retry := GetRetryFromContext(r); retry != 0 {
+        t.Errorf("expected RETRY = %v, got %v", 0, retry)
+    }
 }
 
 func TestGetAttemptsFromContext(t *testing.T) {
@@ -44,7 +50,13 @@ func TestGetAttemptsFromContext(t *testing.T) {
         r = r.WithContext(ctx)
 
         if retry := GetAttemptsFromContext(r); retry != test.want {
-            t.Errorf("expected RETRY = %v, got %v", test.want, test.input)
+            t.Errorf("expected ATTEMPTS = %v, got %v", test.want, test.input)
         }
+    }
+
+    r = r.WithContext(context.Background())
+
+    if retry := GetAttemptsFromContext(r); retry != 1 {
+        t.Errorf("expected ATTEMPTS = %v, got %v", 1, retry)
     }
 }

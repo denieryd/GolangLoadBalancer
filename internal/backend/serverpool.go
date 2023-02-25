@@ -7,7 +7,7 @@ import (
 )
 
 type ServerPool struct {
-    backends []*Backend
+    backends []*IBackend
     current  uint64
 }
 
@@ -16,7 +16,7 @@ const (
     BACKEND_STATUS_DOWN = "down"
 )
 
-func (s *ServerPool) AddBackend(backend *Backend) {
+func (s *ServerPool) AddBackend(backend *IBackend) {
     s.backends = append(s.backends, backend)
 }
 
@@ -26,18 +26,19 @@ func (s *ServerPool) NewPeerIndex() int {
 
 func (s *ServerPool) MarkBackendStatus(backendURL *url.URL, alive bool) {
     for _, b := range s.backends {
-        if b.URL.String() == backendURL.String() {
-            b.SetAlive(alive)
+        if (*b).GetServerURL().String() == backendURL.String() {
+            (*b).SetAlive(alive)
             return
         }
     }
 }
 
-func (s *ServerPool) GetNextPeer() *Backend {
+func (s *ServerPool) GetNextPeer() *IBackend {
     peerInd := s.NewPeerIndex()
     for i := peerInd; i < peerInd+len(s.backends); i++ {
         idx := i % len(s.backends)
-        if s.backends[idx].IsAlive() {
+        backend := s.backends[idx]
+        if (*backend).IsAlive() {
             if i != peerInd {
                 atomic.StoreUint64(&s.current, uint64(idx))
             }
@@ -51,14 +52,14 @@ func (s *ServerPool) GetNextPeer() *Backend {
 
 func (s *ServerPool) HealthCheck() {
     for _, b := range s.backends {
-        alive := isBackendAlive(b.URL)
-        b.SetAlive(alive)
+        alive := isBackendAlive((*b).GetServerURL())
+        (*b).SetAlive(alive)
 
         status := BACKEND_STATUS_UP
         if !alive {
             status = BACKEND_STATUS_DOWN
         }
 
-        log.Infof("%s [%s]\n", b.URL, status)
+        log.Infof("%s [%s]", (*b).GetServerURL(), status)
     }
 }

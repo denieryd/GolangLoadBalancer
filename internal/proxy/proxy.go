@@ -20,7 +20,7 @@ func SetupProxyServers(serverTokens []string) error {
 
         reverseProxy := httputil.NewSingleHostReverseProxy(serverURL)
         reverseProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, e error) {
-            log.Infof("[%s] %s\n", serverURL.Host, e.Error())
+            log.Infof("[%s] %s", serverURL.Host, e.Error())
             retries := lb.GetRetryFromContext(r)
             if retries < 3 {
                 select {
@@ -34,18 +34,16 @@ func SetupProxyServers(serverTokens []string) error {
             lb.ServerPool.MarkBackendStatus(serverURL, false)
 
             attempts := lb.GetAttemptsFromContext(r)
-            log.Infof("%s(%s) Attempting retry %d\n", r.RemoteAddr, r.URL.Path, attempts)
+            log.Infof("%s(%s) Attempting retry %d", r.RemoteAddr, r.URL.Path, attempts)
             ctx := context.WithValue(r.Context(), lb.ATTEMPTS, attempts+1)
             lb.LoadBalance(w, r.WithContext(ctx))
         }
 
-        lb.ServerPool.AddBackend(&backend.Backend{
-            URL:          serverURL,
-            Alive:        true,
-            ReverseProxy: reverseProxy,
-        })
+        b := backend.CreateNewBackend(serverURL, true, reverseProxy)
+        var ib backend.IBackend = &b
+        lb.ServerPool.AddBackend(&ib)
 
-        log.Infof("Configured server: %s\n", serverURL)
+        log.Infof("Configured server: %s", serverURL)
     }
 
     return nil
