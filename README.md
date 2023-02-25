@@ -1,3 +1,6 @@
+# Purpose
+Just to train some skills in writing applications using Go.
+
 # SimpleLoadBalancer
 This load balancer uses RoundRobin algorithm to send requests into set of backends and support
 retries too.
