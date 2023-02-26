@@ -51,11 +51,9 @@ func HealthCheck() {
 
     t := time.NewTicker(timeToStart)
     for {
-        select {
-        case <-t.C:
-            log.Info("Start health checking")
-            ServerPool.HealthCheck()
-            log.Info("Health check completed")
-        }
+        <-t.C
+        log.Info("Start health checking")
+        ServerPool.HealthCheck()
+        log.Info("Health check completed")
     }
 }
